@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tarea Factura JSON</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .bloque { border: 1px solid black; padding: 15px; margin-bottom: 10px; width: 500px; }
+        .fila { margin-bottom: 8px; }
+        label { display: inline-block; width: 130px; font-weight: bold; }
+        button { cursor: pointer; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <h2>Nueva Factura</h2>
+
+    <div class="bloque">
+        <h3>Identificación</h3>
+        <label>Emisor:</label> <input type="text" id="emi_n"> <input type="text" id="emi_c" placeholder="CIF"><br>
+        <label>Receptor:</label> <input type="text" id="rec_n"> <input type="text" id="rec_c" placeholder="CIF">
+    </div>
+
+    <div class="bloque">
+        <h3>Conceptos</h3>
+        <div id="lista-c">
+            <div class="fila">
+                <input type="text" class="desc" placeholder="Descripción">
+                <input type="number" class="prec" placeholder="Precio">
+                <input type="number" class="cant" placeholder="Cant">
+            </div>
+        </div>
+        <button onclick="addC()">+ Añadir Concepto</button>
+    </div>
+
+    <div class="bloque">
+        <h3>Impuestos / Descuentos</h3>
+        <div id="lista-i">
+            <div class="fila">
+                <input type="text" class="i-nom" placeholder="Nombre (IVA/IRPF)">
+                <input type="number" class="i-pct" placeholder="%">
+            </div>
+        </div>
+        <button onclick="addI()">+ Añadir Impuesto</button>
+    </div>
+
+    <br>
+    <button onclick="guardar()"; background: #eee;">GUARDAR DATOS</button>
+
+    <script>
+        function addC() {
+            var d = document.createElement('div'); d.className = 'fila';
+            d.innerHTML = '<input type="text" class="desc" placeholder="Descripción"> <input type="number" class="prec" placeholder="Precio"> <input type="number" class="cant" placeholder="Cant">';
+            document.getElementById('lista-c').appendChild(d);
+        }
+
+        function addI() {
+            var d = document.createElement('div'); d.className = 'fila';
+            d.innerHTML = '<input type="text" class="i-nom" placeholder="Nombre (IVA/IRPF)"> <input type="number" class="i-pct" placeholder="%">';
+            document.getElementById('lista-i').appendChild(d);
+        }
+
+        function generarHash32() {
+            var abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var res = "";
+            for (var i = 0; i < 32; i++) res += abc.charAt(Math.floor(Math.random() * abc.length));
+            return res;
+        }
+
+        function guardar() {
+            var subtotal = 0;
+            var conceptosArr = [];
+            document.querySelectorAll('#lista-c .fila').forEach(f => {
+                var p = parseFloat(f.querySelector('.prec').value) || 0;
+                var c = parseFloat(f.querySelector('.cant').value) || 0;
+                var t = p * c;
+                subtotal += t;
+                conceptosArr.push({ desc: f.querySelector('.desc').value, precio: p, cant: c, subtotal_linea: t });
+            });
+
+            var impuestosArr = [];
+            var totImp = 0;
+            document.querySelectorAll('#lista-i .fila').forEach(f => {
+                var p = parseFloat(f.querySelector('.i-pct').value) || 0;
+                var v = subtotal * (p / 100);
+                totImp += v;
+                impuestosArr.push({ 
+                    nombre: f.querySelector('.i-nom').value, 
+                    porcentaje: p + "%", 
+                    valor_aplicado: v.toFixed(2) 
+                });
+            });
+
+            var factura = {
+                uuid: self.crypto.randomUUID(),
+                emisor: document.getElementById('emi_n').value,
+                receptor: document.getElementById('rec_n').value,
+                conceptos: conceptosArr,
+                impuestos: impuestosArr,
+                total_factura: (subtotal + totImp).toFixed(2),
+                metadata: {
+                    fecha: new Date().toLocaleString(),
+                    hash_alfanumerico: generarHash32(),
+                    estado_random: Math.floor(Math.random() * 5) + 1
+                }
+            };
+
+            var historial = JSON.parse(localStorage.getItem('archivo_json_facturas') || "[]");
+            historial.push(factura);
+            localStorage.setItem('archivo_json_facturas', JSON.stringify(historial, null, 2));
+                    }
+    </script>
+</body>
+</html>
