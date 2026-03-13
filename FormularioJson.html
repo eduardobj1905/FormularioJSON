@@ -4,11 +4,49 @@
     <meta charset="UTF-8">
     <title>Tarea Factura JSON</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; }
-        .bloque { border: 1px solid black; padding: 15px; margin-bottom: 10px; width: 500px; }
-        .fila { margin-bottom: 8px; }
-        label { display: inline-block; width: 130px; font-weight: bold; }
-        button { cursor: pointer; margin-top: 5px; }
+        body { font-family: Arial,
+             sans-serif; margin: 30px;
+              line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center; }
+    
+    .bloque { 
+        border: 1px solid #ccc; 
+        padding: 20px; 
+        margin-bottom: 20px; 
+        width: 600px; 
+    }
+
+    h3 { margin-top: 0; color: #333; }
+    label { 
+        display: block; 
+        font-weight: bold; 
+        margin: 15px 0 5px 0; 
+        border-bottom: 1px solid #eee;
+    }
+
+    input { 
+        padding: 6px; 
+        margin: 4px 2px; 
+        border: 1px solid #999;
+        border-radius: 3px;
+    }
+
+    .bloque input[type="text"] { width: 28%; }
+    #emi_name, #rec_name { width: 95%; } 
+
+    .fila { margin-top: 10px; display: flex; gap: 5px; }
+    .fila input { flex: 1; width: auto; }
+    .description { flex: 3; } 
+    button { 
+        margin-top: 10px; 
+        padding: 5px 15px; 
+        cursor: pointer; 
+        background: #eee; 
+        border: 1px solid #888; 
+    }
+    button:hover { background: #ddd; }
     </style>
 </head>
 <body>
@@ -17,98 +55,182 @@
 
     <div class="bloque">
         <h3>Identificación</h3>
-        <label>Emisor:</label> <input type="text" id="emi_n"> <input type="text" id="emi_c" placeholder="CIF"><br>
-        <label>Receptor:</label> <input type="text" id="rec_n"> <input type="text" id="rec_c" placeholder="CIF">
+        <label>Emisor:</label>
+        <input type="text" id="emi_name" placeholder="Name">
+        <input type="text" id="emi_cif" placeholder="CIF">
+        <input type="text" id="emi_adress" placeholder="Adress">
+        <input type="text" id="emi_zip_code" placeholder="ZIP">
+        <input type="text" id="emi_city" placeholder="City">
+        <input type="text" id="emi_state" placeholder="State">
+        <input type="text" id="emi_country" placeholder="Country">
+        <input type="text" id="emi_email" placeholder="Email">
+        <input type="text" id="emi_phone" placeholder="Phone">
+        <br>
+       <label>Receptor:</label>
+       <input type="text" id="rec_name" placeholder="Name">
+       <input type="text" id="rec_cif" placeholder="CIF">
+       <input type="text" id="rec_adress" placeholder="Adress">
+       <input type="text" id="rec_zip_code" placeholder="ZIP">
+       <input type="text" id="rec_city" placeholder="City">
+       <input type="text" id="rec_state" placeholder="State">
+       <input type="text" id="rec_country" placeholder="Country">
+       <input type="text" id="rec_email" placeholder="Email">
+       <input type="text" id="rec_phone" placeholder="Phone">
+<br>
     </div>
 
     <div class="bloque">
         <h3>Conceptos</h3>
         <div id="lista-c">
             <div class="fila">
-                <input type="text" class="desc" placeholder="Descripción">
-                <input type="number" class="prec" placeholder="Precio">
-                <input type="number" class="cant" placeholder="Cant">
+                <input type="text" class="description" placeholder="Description">
+                <input type="number" class="price" placeholder="Price">
+                <input type="number" class="quant" placeholder="Quantity">
             </div>
         </div>
-        <button onclick="addC()">+ Añadir Concepto</button>
+        <button onclick="addConcepto()">+ Añadir Concepto</button>
     </div>
 
     <div class="bloque">
         <h3>Impuestos / Descuentos</h3>
         <div id="lista-i">
             <div class="fila">
-                <input type="text" class="i-nom" placeholder="Nombre (IVA/IRPF)">
-                <input type="number" class="i-pct" placeholder="%">
+                <input type="text" class="imp_nom" placeholder="Nombre (IVA/IRPF)">
+                <input type="number" class="imp_pct" placeholder="%">
             </div>
         </div>
-        <button onclick="addI()">+ Añadir Impuesto</button>
+        <button onclick="addImpuesto()">+ Añadir Impuesto</button>
     </div>
 
     <br>
-    <button onclick="guardar()"; background: #eee;">GUARDAR DATOS</button>
-
-    <script>
-        function addC() {
+    <button onclick="guardar()"; background: #eee;>GUARDAR DATOS</button>
+<script>
+    function addConcepto() {
             var d = document.createElement('div'); d.className = 'fila';
-            d.innerHTML = '<input type="text" class="desc" placeholder="Descripción"> <input type="number" class="prec" placeholder="Precio"> <input type="number" class="cant" placeholder="Cant">';
+            d.innerHTML = '<input type="text" class="description" placeholder="Description"> <input type="number" class="price" placeholder="Price"> <input type="number" class="quant" placeholder="Quantity">';
             document.getElementById('lista-c').appendChild(d);
         }
 
-        function addI() {
+        function addImpuesto() {
             var d = document.createElement('div'); d.className = 'fila';
-            d.innerHTML = '<input type="text" class="i-nom" placeholder="Nombre (IVA/IRPF)"> <input type="number" class="i-pct" placeholder="%">';
+            d.innerHTML = '<input type="text" class="imp_nom" placeholder="Nombre (IVA/IRPF)"> <input type="number" class="imp_pct" placeholder="%">';
             document.getElementById('lista-i').appendChild(d);
         }
-
         function generarHash32() {
             var abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var res = "";
-            for (var i = 0; i < 32; i++) res += abc.charAt(Math.floor(Math.random() * abc.length));
-            return res;
+            var has = "";
+            for (var i = 0; i < 32; i++)
+             has += abc.charAt(Math.floor(Math.random() * abc.length));
+            return has;
         }
 
         function guardar() {
-            var subtotal = 0;
-            var conceptosArr = [];
-            document.querySelectorAll('#lista-c .fila').forEach(f => {
-                var p = parseFloat(f.querySelector('.prec').value) || 0;
-                var c = parseFloat(f.querySelector('.cant').value) || 0;
-                var t = p * c;
-                subtotal += t;
-                conceptosArr.push({ desc: f.querySelector('.desc').value, precio: p, cant: c, subtotal_linea: t });
-            });
+    // Recogemos los datos de Identificación
+    const factura = {
+        emisor: {
+            nombre: document.getElementById('emi_name').value,
+            cif: document.getElementById('emi_cif').value,
+            direccion: document.getElementById('emi_adress').value,
+            zip: document.getElementById('emi_zip_code').value,
+            ciudad: document.getElementById('emi_city').value,
+            estado: document.getElementById('emi_state').value,
+            pais: document.getElementById('emi_country').value,
+            email: document.getElementById('emi_email').value,
+            telefono: document.getElementById('emi_phone').value
+        },
+        receptor: {
+            nombre: document.getElementById('rec_name').value,
+            cif: document.getElementById('rec_cif').value,
+            direccion: document.getElementById('rec_adress').value,
+            zip: document.getElementById('rec_zip_code').value,
+            ciudad: document.getElementById('rec_city').value,
+            estado: document.getElementById('rec_state').value,
+            pais: document.getElementById('rec_country').value,
+            email: document.getElementById('rec_email').value,
+            telefono: document.getElementById('rec_phone').value
+        },
+        conceptos: [],
+        impuestos: [],
+        totales: {
+                totalSinImpuestos: 0,
+                cantidadDelImpuesto: 0,
+                totalFinal: 0
+            }
+    };
 
-            var impuestosArr = [];
-            var totImp = 0;
-            document.querySelectorAll('#lista-i .fila').forEach(f => {
-                var p = parseFloat(f.querySelector('.i-pct').value) || 0;
-                var v = subtotal * (p / 100);
-                totImp += v;
-                impuestosArr.push({ 
-                    nombre: f.querySelector('.i-nom').value, 
-                    porcentaje: p + "%", 
-                    valor_aplicado: v.toFixed(2) 
-                });
-            });
 
-            var factura = {
-                uuid: self.crypto.randomUUID(),
-                emisor: document.getElementById('emi_n').value,
-                receptor: document.getElementById('rec_n').value,
-                conceptos: conceptosArr,
-                impuestos: impuestosArr,
-                total_factura: (subtotal + totImp).toFixed(2),
-                metadata: {
-                    fecha: new Date().toLocaleString(),
-                    hash_alfanumerico: generarHash32(),
-                    estado_random: Math.floor(Math.random() * 5) + 1
-                }
-            };
+  let totalSinImpuestos = 0;
 
-            var historial = JSON.parse(localStorage.getItem('archivo_json_facturas') || "[]");
-            historial.push(factura);
-            localStorage.setItem('archivo_json_facturas', JSON.stringify(historial, null, 2));
-                    }
+let sumaConceptos = 0;
+    let datosValidos = true; 
+
+    const filasConceptos = document.querySelectorAll('#lista-c .fila');
+    filasConceptos.forEach(fila => {
+        const precio = parseFloat(fila.querySelector('.price').value) || 0;
+        const cantidad = parseFloat(fila.querySelector('.quant').value) || 0;
+
+        if (precio <= 0 || cantidad <= 0) {
+            datosValidos = false;
+        }
+
+        const subtotalLinea = precio * cantidad;
+        sumaConceptos += subtotalLinea;
+
+        factura.conceptos.push({
+            descripcion: fila.querySelector('.description').value,
+            precio: precio,
+            cantidad: cantidad,
+            subtotal: subtotalLinea.toFixed(2) 
+        });
+    });
+
+    if (!datosValidos) {
+        alert("ERROR: El precio y la cantidad deben ser mayores que 0.");
+        return; 
+    }
+
+
+
+    let totalImpuestosAcumulados = 0;
+
+    // Recogemos y calculamos los Impuestos
+    const filasImpuestos = document.querySelectorAll('#lista-i .fila');
+    filasImpuestos.forEach(fila => {
+        const pct = parseFloat(fila.querySelector('.imp_pct').value) || 0;
+        const nombre = fila.querySelector('.imp_nom').value;
+        
+        // Calculamos el valor de los impuestos aplicados
+        const importeIntroducido = totalSinImpuestos * (pct / 100);
+        totalImpuestosAcumulados += importeIntroducido;
+
+        factura.impuestos.push({
+            nombre: nombre,
+            porcentaje: pct,
+            cantidadCalculada: importeIntroducido.toFixed(2)
+        });
+    });
+
+    // Preparamos los datos
+    factura.totales.totalSinImpuestos = totalSinImpuestos.toFixed(2);
+    factura.totales.cantidadDelImpuesto = totalImpuestosAcumulados.toFixed(2);
+    factura.totales.totalFinal = (totalSinImpuestos + totalImpuestosAcumulados).toFixed(2);
+
+
+    //Creamos y guardamos el JSON
+
+    const contenidoJson = JSON.stringify(factura, null, 2);
+    const archivo = new Blob([contenidoJson], { type: "application/json" });
+
+    const enlace = document.createElement("a");
+    enlace.href = URL.createObjectURL(archivo);
+    enlace.download = "factura_" + factura.receptor.nombre + ".json";
+    enlace.click();
+    alert("FACTURA DESCARGADA");
+
+
+    }
+
+
     </script>
 </body>
 </html>
