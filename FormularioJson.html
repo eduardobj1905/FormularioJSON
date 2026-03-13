@@ -133,7 +133,10 @@
         const fechaFinCobro = new Date(hoy.setMonth(hoy.getMonth() + 1)).toLocaleDateString('es-ES');
 
         //Datos de la factura
+        const uuid = Math.floor(Math.random() * 100); 
+        
         const factura = {
+            uuid : uuid,
             emisor: {
                 nombre: document.getElementById('emi_name').value,
                 cif: document.getElementById('emi_cif').value,
