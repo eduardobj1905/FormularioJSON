@@ -84,8 +84,8 @@
         <div id="lista-c">
             <div class="fila">
                 <input type="text" class="description" placeholder="Description">
-                <input type="number" class="price" placeholder="Price">
-                <input type="number" class="quant" placeholder="Quantity">
+                <input type="number" class="price" placeholder="Price" min="0.01" step="0.01">
+                <input type="number" class="quant" placeholder="Quantity" min="1">
             </div>
         </div>
         <button onclick="addConcepto()">+ Añadir Concepto</button>
@@ -105,9 +105,17 @@
     <br>
     <button onclick="guardar()"; background: #eee;>GUARDAR DATOS</button>
 <script>
+    function generarHash32() {
+            const abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            let hash = "";
+            for (let i = 0; i < 32; i++) {
+                hash += abc.charAt(Math.floor(Math.random() * abc.length));
+            }
+            return hash;
+        }
     function addConcepto() {
             var d = document.createElement('div'); d.className = 'fila';
-            d.innerHTML = '<input type="text" class="description" placeholder="Description"> <input type="number" class="price" placeholder="Price"> <input type="number" class="quant" placeholder="Quantity">';
+            d.innerHTML = '<input type="text" class="description" placeholder="Description"><input type="number" class="price" placeholder="Price" min="0.01" step="0.01"><input type="number" class="quant" placeholder="Quantity" min="1">';
             document.getElementById('lista-c').appendChild(d);
         }
 
@@ -116,50 +124,52 @@
             d.innerHTML = '<input type="text" class="imp_nom" placeholder="Nombre (IVA/IRPF)"> <input type="number" class="imp_pct" placeholder="%">';
             document.getElementById('lista-i').appendChild(d);
         }
-        function generarHash32() {
-            var abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var has = "";
-            for (var i = 0; i < 32; i++)
-             has += abc.charAt(Math.floor(Math.random() * abc.length));
-            return has;
-        }
 
-        function guardar() {
-    // Recogemos los datos de Identificación
-    const factura = {
-        emisor: {
-            nombre: document.getElementById('emi_name').value,
-            cif: document.getElementById('emi_cif').value,
-            direccion: document.getElementById('emi_adress').value,
-            zip: document.getElementById('emi_zip_code').value,
-            ciudad: document.getElementById('emi_city').value,
-            estado: document.getElementById('emi_state').value,
-            pais: document.getElementById('emi_country').value,
-            email: document.getElementById('emi_email').value,
-            telefono: document.getElementById('emi_phone').value
-        },
-        receptor: {
-            nombre: document.getElementById('rec_name').value,
-            cif: document.getElementById('rec_cif').value,
-            direccion: document.getElementById('rec_adress').value,
-            zip: document.getElementById('rec_zip_code').value,
-            ciudad: document.getElementById('rec_city').value,
-            estado: document.getElementById('rec_state').value,
-            pais: document.getElementById('rec_country').value,
-            email: document.getElementById('rec_email').value,
-            telefono: document.getElementById('rec_phone').value
-        },
-        conceptos: [],
-        impuestos: [],
-        totales: {
+
+     function guardar() {
+        //Calculamos la fecha
+        const fechaEmision = new Date().toLocaleDateString('es-ES');
+        const hoy = new Date();
+        const fechaFinCobro = new Date(hoy.setMonth(hoy.getMonth() + 1)).toLocaleDateString('es-ES');
+
+        //Datos de la factura
+        const factura = {
+            emisor: {
+                nombre: document.getElementById('emi_name').value,
+                cif: document.getElementById('emi_cif').value,
+                direccion: document.getElementById('emi_adress').value,
+                zip: document.getElementById('emi_zip_code').value,
+                ciudad: document.getElementById('emi_city').value,
+                estado: document.getElementById('emi_state').value,
+                pais: document.getElementById('emi_country').value,
+                email: document.getElementById('emi_email').value,
+                telefono: document.getElementById('emi_phone').value
+            },
+            receptor: {
+                nombre: document.getElementById('rec_name').value,
+                cif: document.getElementById('rec_cif').value,
+                direccion: document.getElementById('rec_adress').value,
+                zip: document.getElementById('rec_zip_code').value,
+                ciudad: document.getElementById('rec_city').value,
+                estado: document.getElementById('rec_state').value,
+                pais: document.getElementById('rec_country').value,
+                email: document.getElementById('rec_email').value,
+                telefono: document.getElementById('rec_phone').value
+            },
+            conceptos: [],
+            impuestos: [],
+            totales: {
                 totalSinImpuestos: 0,
                 cantidadDelImpuesto: 0,
                 totalFinal: 0
-            }
-    };
+            },
+            hash: generarHash32(), 
+            fecha_emision: fechaEmision,
+            fecha_fin_cobro: fechaFinCobro,
+            estado_factura: Math.floor(Math.random() * 5) + 1
+        };
 
 
-  let totalSinImpuestos = 0;
 
 let sumaConceptos = 0;
     let datosValidos = true; 
@@ -191,8 +201,8 @@ let sumaConceptos = 0;
 
 
 
+    let totalSinImpuestos = sumaConceptos; 
     let totalImpuestosAcumulados = 0;
-
     // Recogemos y calculamos los Impuestos
     const filasImpuestos = document.querySelectorAll('#lista-i .fila');
     filasImpuestos.forEach(fila => {
